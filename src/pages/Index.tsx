@@ -10,7 +10,7 @@ const Index = () => {
 
       {/* Hero */}
       <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="max-w-2xl mx-auto text-center">
+        <div className="max-w-2xl mx-auto text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-accent/10 text-accent rounded-full px-4 py-1.5 text-sm font-medium mb-6">
             <Truck className="h-4 w-4" />
             India's Trucking Network
@@ -18,21 +18,44 @@ const Index = () => {
           <h1 className="font-slab text-4xl md:text-5xl font-bold text-foreground leading-tight mb-4">
             Connect Truck Owners with Verified Drivers
           </h1>
-          <p className="text-lg text-muted-foreground mb-8">
-            Find the right driver or vehicle owner instantly. Browse profiles, unlock contacts, and get moving.
+          <p className="text-lg text-muted-foreground">
+            Choose how you want to get started
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link to="/browse">
-              <Button size="lg" className="gap-2">
-                Browse Profiles <ArrowRight className="h-4 w-4" />
+        </div>
+
+        {/* Role Selection Cards */}
+        <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+          {/* Truck Owner Card */}
+          <Link to="/browse?role=owner" className="group">
+            <div className="rounded-xl border-2 border-primary/20 bg-card p-8 text-center transition-all hover:border-primary hover:shadow-lg">
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <Truck className="h-10 w-10 text-primary" />
+              </div>
+              <h2 className="font-slab text-xl font-bold text-card-foreground mb-2">I'm a Truck Owner</h2>
+              <p className="text-sm text-muted-foreground mb-5">
+                I have vehicles and need reliable drivers to run them in my area.
+              </p>
+              <Button className="w-full gap-2">
+                Find Drivers <ArrowRight className="h-4 w-4" />
               </Button>
-            </Link>
-            <Link to="/pricing">
-              <Button size="lg" variant="outline">
-                View Pricing
+            </div>
+          </Link>
+
+          {/* Driver Card */}
+          <Link to="/browse?role=driver" className="group">
+            <div className="rounded-xl border-2 border-accent/20 bg-card p-8 text-center transition-all hover:border-accent hover:shadow-lg">
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-accent/10 group-hover:bg-accent/20 transition-colors">
+                <Users className="h-10 w-10 text-accent" />
+              </div>
+              <h2 className="font-slab text-xl font-bold text-card-foreground mb-2">I'm a Driver</h2>
+              <p className="text-sm text-muted-foreground mb-5">
+                I want to drive trucks in my area and earn money.
+              </p>
+              <Button variant="outline" className="w-full gap-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground">
+                Find Truck Owners <ArrowRight className="h-4 w-4" />
               </Button>
-            </Link>
-          </div>
+            </div>
+          </Link>
         </div>
       </section>
 
