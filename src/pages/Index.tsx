@@ -26,23 +26,23 @@ const Index = () => {
         {/* Role Selection Cards */}
         <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
           {/* Truck Owner Card */}
-          <Link to="/browse?role=owner" className="group">
+          <Link to="/signup?role=owner" className="group">
             <div className="rounded-xl border-2 border-primary/20 bg-card p-8 text-center transition-all hover:border-primary hover:shadow-lg">
               <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <Truck className="h-10 w-10 text-primary" />
               </div>
-              <h2 className="font-slab text-xl font-bold text-card-foreground mb-2">I'm a Truck Owner</h2>
+              <h2 className="font-slab text-xl font-bold text-card-foreground mb-2">Want to List My Vehicle</h2>
               <p className="text-sm text-muted-foreground mb-5">
-                I have vehicles and need reliable drivers to run them in my area.
+                I own trucks and need reliable drivers to operate them.
               </p>
               <Button className="w-full gap-2">
-                Find Drivers <ArrowRight className="h-4 w-4" />
+                Get Started <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </Link>
 
           {/* Driver Card */}
-          <Link to="/browse?role=driver" className="group">
+          <Link to="/signup?role=driver" className="group">
             <div className="rounded-xl border-2 border-accent/20 bg-card p-8 text-center transition-all hover:border-accent hover:shadow-lg">
               <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-accent/10 group-hover:bg-accent/20 transition-colors">
                 <Users className="h-10 w-10 text-accent" />
