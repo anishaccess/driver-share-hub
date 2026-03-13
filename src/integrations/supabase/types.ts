@@ -14,7 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contact_unlocks: {
+        Row: {
+          created_at: string
+          id: string
+          unlocked_profile_id: string
+          unlocker_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          unlocked_profile_id: string
+          unlocker_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          unlocked_profile_id?: string
+          unlocker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_unlocks_unlocked_profile_id_fkey"
+            columns: ["unlocked_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_emoji: string | null
+          city: string
+          created_at: string
+          experience: string | null
+          full_name: string
+          id: string
+          phone: string
+          rating: number | null
+          role: string
+          updated_at: string
+          user_id: string
+          vehicle_type: string | null
+        }
+        Insert: {
+          avatar_emoji?: string | null
+          city: string
+          created_at?: string
+          experience?: string | null
+          full_name: string
+          id?: string
+          phone: string
+          rating?: number | null
+          role: string
+          updated_at?: string
+          user_id: string
+          vehicle_type?: string | null
+        }
+        Update: {
+          avatar_emoji?: string | null
+          city?: string
+          created_at?: string
+          experience?: string | null
+          full_name?: string
+          id?: string
+          phone?: string
+          rating?: number | null
+          role?: string
+          updated_at?: string
+          user_id?: string
+          vehicle_type?: string | null
+        }
+        Relationships: []
+      }
+      unlock_balances: {
+        Row: {
+          id: string
+          remaining_unlocks: number
+          total_purchased: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          remaining_unlocks?: number
+          total_purchased?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          remaining_unlocks?: number
+          total_purchased?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
