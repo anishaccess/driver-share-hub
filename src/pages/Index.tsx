@@ -42,7 +42,7 @@ const Index = () => {
           </Link>
 
           {/* Driver Card */}
-          <Link to="/browse?role=driver" className="group">
+          <Link to="/signup?role=driver" className="group">
             <div className="rounded-xl border-2 border-accent/20 bg-card p-8 text-center transition-all hover:border-accent hover:shadow-lg">
               <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-accent/10 group-hover:bg-accent/20 transition-colors">
                 <Users className="h-10 w-10 text-accent" />
