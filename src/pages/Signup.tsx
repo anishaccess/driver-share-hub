@@ -47,8 +47,8 @@ const Signup = () => {
         return;
       }
 
-      toast.success("Account created! Welcome to TrukConnect.");
-      navigate("/dashboard");
+      toast.success("Please check your email for the verification code.");
+      navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`);
     }
     setLoading(false);
   };

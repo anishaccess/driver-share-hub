@@ -10,6 +10,7 @@ import Pricing from "./pages/Pricing";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import VerifyOTP from "./pages/VerifyOTP";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
