@@ -22,7 +22,16 @@ const Signup = () => {
     const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: {
+          role,
+          full_name: form.full_name,
+          phone: form.phone,
+          city: form.city,
+          avatar_emoji: role === "owner" ? "🚛" : "🧑‍✈️",
+        },
+      },
     });
 
     if (error) {
@@ -32,21 +41,6 @@ const Signup = () => {
     }
 
     if (data.user) {
-      const { error: profileError } = await supabase.from("profiles").insert({
-        user_id: data.user.id,
-        role,
-        full_name: form.full_name,
-        phone: form.phone,
-        city: form.city,
-        avatar_emoji: role === "owner" ? "🚛" : "🧑‍✈️",
-      });
-
-      if (profileError) {
-        toast.error("Profile creation failed: " + profileError.message);
-        setLoading(false);
-        return;
-      }
-
       toast.success("Please check your email for the verification code.");
       navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`);
     }
