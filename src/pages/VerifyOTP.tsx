@@ -22,7 +22,7 @@ const VerifyOTP = () => {
     }
     setLoading(true);
 
-    const { error } = await supabase.auth.verifyOtp({
+    const { data, error } = await supabase.auth.verifyOtp({
       email,
       token: otp,
       type: "signup",
@@ -32,6 +32,26 @@ const VerifyOTP = () => {
       toast.error(error.message);
       setLoading(false);
       return;
+    }
+
+    // Create profile after successful verification
+    if (data.user) {
+      const meta = data.user.user_metadata;
+      const { error: profileError } = await supabase.from("profiles").insert({
+        user_id: data.user.id,
+        role: meta.role ?? "owner",
+        full_name: meta.full_name ?? "",
+        phone: meta.phone ?? "",
+        city: meta.city ?? "",
+        avatar_emoji: meta.avatar_emoji ?? "👤",
+      });
+
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        toast.error("Profile setup failed. Please try logging in.");
+        setLoading(false);
+        return;
+      }
     }
 
     toast.success("Email verified! Welcome to TrukConnect.");
