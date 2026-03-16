@@ -49,53 +49,70 @@ const Signup = () => {
 
   const Icon = role === "owner" ? Truck : Users;
   const roleLabel = role === "owner" ? "Truck Owner" : "Driver";
-  const roleColor = role === "owner" ? "text-primary" : "text-accent";
+  const roleDesc = role === "owner" ? "List your vehicles and find reliable drivers" : "Find truck owners and start earning";
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8">
-          <ArrowLeft className="h-4 w-4" /> Back to home
-        </Link>
+    <div className="min-h-screen bg-background flex">
+      {/* Left decorative panel */}
+      <div className="hidden lg:flex lg:w-1/2 gradient-hero relative items-center justify-center">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(38,95%,54%,0.08),transparent_60%)]" />
+        <div className="relative text-center px-12">
+          <div className="h-20 w-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-8 border border-white/10">
+            <Icon className="h-10 w-10 text-white" />
+          </div>
+          <h2 className="font-display text-4xl font-bold text-white mb-4">Join as {roleLabel}</h2>
+          <p className="text-white/60 text-lg max-w-sm">{roleDesc}</p>
+        </div>
+      </div>
 
-        <div className="rounded-xl border bg-card p-8">
-          <div className="text-center mb-6">
-            <div className={`mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-secondary ${roleColor}`}>
-              <Icon className="h-7 w-7" />
+      {/* Right form panel */}
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground mb-10 group">
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" /> Back to home
+          </Link>
+
+          <div className="flex items-center gap-3 mb-8">
+            <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${role === "owner" ? "bg-primary/10" : "bg-accent/10"}`}>
+              <Icon className={`h-6 w-6 ${role === "owner" ? "text-primary" : "text-accent"}`} />
             </div>
-            <h1 className="font-slab text-2xl font-bold text-card-foreground">Sign up as {roleLabel}</h1>
-            <p className="text-sm text-muted-foreground mt-1">Create your account to get started</p>
+            <div>
+              <h1 className="font-display text-2xl font-bold text-foreground">Create Account</h1>
+              <p className="text-sm text-muted-foreground">Sign up as {roleLabel}</p>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="full_name">Full Name</Label>
-              <Input id="full_name" required value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Rajesh Kumar" />
+            <div className="space-y-2">
+              <Label htmlFor="full_name" className="font-semibold">Full Name</Label>
+              <Input id="full_name" required value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Rajesh Kumar" className="h-11" />
             </div>
-            <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" required value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+91 98765 43210" />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="font-semibold">Phone</Label>
+                <Input id="phone" required value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+91 98765 43210" className="h-11" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city" className="font-semibold">City</Label>
+                <Input id="city" required value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Mumbai" className="h-11" />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="city">City</Label>
-              <Input id="city" required value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Mumbai" />
+            <div className="space-y-2">
+              <Label htmlFor="email" className="font-semibold">Email</Label>
+              <Input id="email" type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="you@example.com" className="h-11" />
             </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="you@example.com" />
+            <div className="space-y-2">
+              <Label htmlFor="password" className="font-semibold">Password</Label>
+              <Input id="password" type="password" required minLength={6} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 6 characters" className="h-11" />
             </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required minLength={6} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 6 characters" />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full h-12 font-bold text-base mt-2" disabled={loading}>
               {loading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
 
-          <p className="text-sm text-center text-muted-foreground mt-4">
+          <p className="text-sm text-center text-muted-foreground mt-6">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary hover:underline">Log in</Link>
+            <Link to="/login" className="text-primary font-semibold hover:underline">Sign in</Link>
           </p>
         </div>
       </div>

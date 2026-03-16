@@ -2,7 +2,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
 import { Input } from "@/components/ui/input";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -47,25 +47,25 @@ const Browse = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <h1 className="font-slab text-2xl font-bold text-foreground mb-1">Find Drivers & Owners</h1>
-          <p className="text-sm text-muted-foreground">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="font-display text-3xl font-bold text-foreground mb-2">Find Drivers & Owners</h1>
+          <p className="text-muted-foreground">
             {remainingUnlocks > 0 ? `${remainingUnlocks} unlocks remaining` : "Buy a plan to unlock contacts"}
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search by name or location..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Search by name or location..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 h-11" />
           </div>
           <div className="flex gap-2">
             {(["all", "driver", "owner"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2 text-sm rounded-md border transition-colors ${filter === f ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:bg-secondary"}`}
+                className={`px-5 py-2.5 text-sm font-semibold rounded-xl border transition-all ${filter === f ? "bg-primary text-primary-foreground border-primary shadow-md" : "bg-card text-muted-foreground border-border/50 hover:bg-secondary"}`}
               >
                 {f === "all" ? "All" : f === "driver" ? "Drivers" : "Owners"}
               </button>
@@ -73,25 +73,25 @@ const Browse = () => {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
             <ProfileCard key={p.id} {...p} unlocked={unlocked.has(p.id)} onUnlock={() => handleUnlock(p.id)} />
           ))}
         </div>
         {filtered.length === 0 && (
-          <p className="text-center text-muted-foreground py-12">No profiles found matching your search.</p>
+          <p className="text-center text-muted-foreground py-16">No profiles found matching your search.</p>
         )}
       </div>
 
       <Dialog open={showUnlockModal} onOpenChange={setShowUnlockModal}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="font-slab">Unlock Contact Details</DialogTitle>
+            <DialogTitle className="font-display text-xl">Unlock Contact Details</DialogTitle>
             <DialogDescription>You have no unlocks remaining. Purchase a plan to unlock driver & owner contacts.</DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 mt-4">
             <Link to="/pricing" className="flex-1">
-              <Button className="w-full bg-accent hover:bg-accent/90">View Plans</Button>
+              <Button className="w-full gradient-accent text-accent-foreground font-bold">View Plans</Button>
             </Link>
             <Button variant="outline" onClick={() => setShowUnlockModal(false)} className="flex-1">
               Cancel
