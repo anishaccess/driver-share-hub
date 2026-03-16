@@ -10,12 +10,12 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-10">
-          <h1 className="font-slab text-3xl font-bold text-foreground mb-2">Simple, Transparent Pricing</h1>
-          <p className="text-muted-foreground">Pay per unlock. No hidden fees. Cancel anytime.</p>
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-14">
+          <h1 className="font-display text-4xl font-bold text-foreground mb-3">Simple, Transparent Pricing</h1>
+          <p className="text-muted-foreground text-lg">Pay per unlock. No hidden fees. Cancel anytime.</p>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 max-w-2xl mx-auto">
+        <div className="grid gap-8 sm:grid-cols-2 max-w-2xl mx-auto">
           <PricingCard
             title="Starter Pack"
             unlocks={10}

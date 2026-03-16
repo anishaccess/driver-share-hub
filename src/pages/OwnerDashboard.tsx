@@ -39,17 +39,19 @@ const OwnerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="border-b bg-card">
-        <div className="container mx-auto flex items-center justify-between py-3 px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <Truck className="h-7 w-7 text-primary" />
-            <span className="font-slab text-xl font-bold text-foreground">TrukConnect</span>
+      <nav className="sticky top-0 z-50 border-b border-border/50 bg-card/80 backdrop-blur-xl">
+        <div className="container mx-auto flex items-center justify-between py-4 px-4">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
+              <Truck className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-display text-xl font-bold text-foreground">TrukConnect</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/browse">
-              <Button variant="ghost" size="sm">Find Drivers</Button>
+              <Button variant="ghost" size="sm" className="font-semibold">Find Drivers</Button>
             </Link>
-            <Button variant="outline" size="sm" onClick={signOut} className="gap-1.5">
+            <Button variant="outline" size="sm" onClick={signOut} className="gap-1.5 font-semibold">
               <LogOut className="h-3.5 w-3.5" /> Logout
             </Button>
           </div>
@@ -58,122 +60,115 @@ const OwnerDashboard = () => {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Owner Profile Card */}
-        <div className="rounded-xl border bg-card p-6 mb-6">
-          <div className="flex items-start gap-4">
-            <div className="h-16 w-16 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-3xl">{profile.avatar_emoji}</span>
+        <div className="rounded-2xl gradient-hero p-8 mb-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(38,95%,54%,0.1),transparent_50%)]" />
+          <div className="relative flex items-start gap-5">
+            <div className="h-18 w-18 shrink-0 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10">
+              <span className="text-4xl">{profile.avatar_emoji}</span>
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="font-slab text-xl font-bold text-card-foreground">{profile.full_name}</h1>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">Truck Owner</span>
+              <div className="flex items-center gap-2 mb-2">
+                <h1 className="font-display text-2xl font-bold text-white">{profile.full_name}</h1>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-accent/20 text-accent border border-accent/20">Truck Owner</span>
               </div>
-              <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{profile.city}</span>
-                <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{profile.phone}</span>
-                <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 text-accent fill-accent" />{profile.rating}</span>
+              <div className="flex flex-wrap gap-4 text-sm text-white/60">
+                <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{profile.city}</span>
+                <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" />{profile.phone}</span>
+                <span className="flex items-center gap-1.5"><Star className="h-3.5 w-3.5 text-accent fill-accent" />{profile.rating}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Owner Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          <div className="rounded-lg border bg-card p-4 text-center">
-            <Unlock className="h-5 w-5 mx-auto text-primary mb-1" />
-            <p className="text-2xl font-bold text-card-foreground">{unlockBalance?.remaining_unlocks ?? 0}</p>
-            <p className="text-xs text-muted-foreground">Remaining Unlocks</p>
-          </div>
-          <div className="rounded-lg border bg-card p-4 text-center">
-            <Lock className="h-5 w-5 mx-auto text-accent mb-1" />
-            <p className="text-2xl font-bold text-card-foreground">{unlockBalance?.total_purchased ?? 0}</p>
-            <p className="text-xs text-muted-foreground">Total Purchased</p>
-          </div>
-          <div className="rounded-lg border bg-card p-4 text-center">
-            <Users className="h-5 w-5 mx-auto text-primary mb-1" />
-            <p className="text-2xl font-bold text-card-foreground">{recentUnlocks?.length ?? 0}</p>
-            <p className="text-xs text-muted-foreground">Drivers Found</p>
-          </div>
-          <div className="rounded-lg border bg-card p-4 text-center">
-            <TrendingUp className="h-5 w-5 mx-auto text-accent mb-1" />
-            <p className="text-2xl font-bold text-card-foreground">{profile.rating}</p>
-            <p className="text-xs text-muted-foreground">Your Rating</p>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          {[
+            { icon: Unlock, value: unlockBalance?.remaining_unlocks ?? 0, label: "Remaining Unlocks", color: "text-primary" },
+            { icon: Lock, value: unlockBalance?.total_purchased ?? 0, label: "Total Purchased", color: "text-accent" },
+            { icon: Users, value: recentUnlocks?.length ?? 0, label: "Drivers Found", color: "text-primary" },
+            { icon: TrendingUp, value: profile.rating, label: "Your Rating", color: "text-accent" },
+          ].map(({ icon: Icon, value, label, color }) => (
+            <div key={label} className="rounded-2xl border border-border/50 bg-card p-5 text-center premium-shadow hover:elevated-shadow transition-all">
+              <Icon className={`h-5 w-5 mx-auto ${color} mb-2`} />
+              <p className="text-2xl font-bold text-card-foreground">{value}</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">{label}</p>
+            </div>
+          ))}
         </div>
 
         {/* Quick Actions */}
-        <div className="grid sm:grid-cols-2 gap-4 mb-6">
-          <Link to="/browse" className="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Users className="h-5 w-5 text-primary" />
+        <div className="grid sm:grid-cols-2 gap-4 mb-8">
+          <Link to="/browse" className="group rounded-2xl border border-border/50 bg-card p-6 hover:elevated-shadow transition-all hover:-translate-y-0.5">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+                <Users className="h-6 w-6 text-primary" />
               </div>
-              <div>
-                <h3 className="font-slab font-semibold text-card-foreground">Find Drivers</h3>
+              <div className="flex-1">
+                <h3 className="font-display font-bold text-card-foreground">Find Drivers</h3>
                 <p className="text-xs text-muted-foreground">Browse verified drivers in your area</p>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground ml-auto" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
             </div>
           </Link>
-          <Link to="/pricing" className="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
-                <Unlock className="h-5 w-5 text-accent" />
+          <Link to="/pricing" className="group rounded-2xl border border-border/50 bg-card p-6 hover:elevated-shadow transition-all hover:-translate-y-0.5">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/15 transition-colors">
+                <Unlock className="h-6 w-6 text-accent" />
               </div>
-              <div>
-                <h3 className="font-slab font-semibold text-card-foreground">Buy Unlocks</h3>
+              <div className="flex-1">
+                <h3 className="font-display font-bold text-card-foreground">Buy Unlocks</h3>
                 <p className="text-xs text-muted-foreground">Get more contact unlocks</p>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground ml-auto" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
             </div>
           </Link>
         </div>
 
-        {/* Analytics Overview */}
-        <div className="rounded-xl border bg-card p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
+        {/* Fleet Overview */}
+        <div className="rounded-2xl border border-border/50 bg-card p-7 mb-8 premium-shadow">
+          <div className="flex items-center gap-2 mb-5">
             <BarChart3 className="h-5 w-5 text-primary" />
-            <h2 className="font-slab text-lg font-bold text-card-foreground">Your Fleet Overview</h2>
+            <h2 className="font-display text-lg font-bold text-card-foreground">Your Fleet Overview</h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-4">
-            <div className="rounded-lg bg-secondary/50 p-4">
-              <p className="text-xs text-muted-foreground mb-1">Vehicle Type</p>
-              <p className="font-semibold text-card-foreground">{profile.vehicle_type ?? "Not set"}</p>
-            </div>
-            <div className="rounded-lg bg-secondary/50 p-4">
-              <p className="text-xs text-muted-foreground mb-1">Experience</p>
-              <p className="font-semibold text-card-foreground">{profile.experience ?? "Not set"}</p>
-            </div>
-            <div className="rounded-lg bg-secondary/50 p-4">
-              <p className="text-xs text-muted-foreground mb-1">Profile Views</p>
-              <p className="font-semibold text-card-foreground">Coming soon</p>
-            </div>
+            {[
+              { label: "Vehicle Type", value: profile.vehicle_type ?? "Not set" },
+              { label: "Experience", value: profile.experience ?? "Not set" },
+              { label: "Profile Views", value: "Coming soon" },
+            ].map(({ label, value }) => (
+              <div key={label} className="rounded-xl bg-secondary/50 p-4 border border-border/30">
+                <p className="text-xs text-muted-foreground mb-1 font-medium">{label}</p>
+                <p className="font-semibold text-card-foreground">{value}</p>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Recent Unlocked Drivers */}
-        <div className="rounded-xl border bg-card p-6">
-          <h2 className="font-slab text-lg font-bold text-card-foreground mb-4">Recently Unlocked Drivers</h2>
+        <div className="rounded-2xl border border-border/50 bg-card p-7 premium-shadow">
+          <h2 className="font-display text-lg font-bold text-card-foreground mb-5">Recently Unlocked Drivers</h2>
           {recentUnlocks && recentUnlocks.length > 0 ? (
             <div className="space-y-3">
               {recentUnlocks.map((unlock: any) => (
-                <div key={unlock.id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
-                  <span className="text-xl">{unlock.profiles?.avatar_emoji ?? "👤"}</span>
+                <div key={unlock.id} className="flex items-center gap-4 p-4 rounded-xl bg-secondary/30 border border-border/30 hover:bg-secondary/50 transition-colors">
+                  <div className="h-10 w-10 rounded-xl bg-primary/8 flex items-center justify-center">
+                    <span className="text-xl">{unlock.profiles?.avatar_emoji ?? "👤"}</span>
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-card-foreground truncate">{unlock.profiles?.full_name}</p>
+                    <p className="font-semibold text-sm text-card-foreground truncate">{unlock.profiles?.full_name}</p>
                     <p className="text-xs text-muted-foreground">
                       {unlock.profiles?.city} · {unlock.profiles?.experience ?? "N/A"} experience
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-medium text-card-foreground">{unlock.profiles?.phone}</p>
+                    <p className="text-xs font-semibold text-card-foreground">{unlock.profiles?.phone}</p>
                     <p className="text-xs text-muted-foreground">{unlock.profiles?.vehicle_type ?? "General"}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">No drivers unlocked yet. Start browsing!</p>
+            <p className="text-sm text-muted-foreground text-center py-8">No drivers unlocked yet. Start browsing!</p>
           )}
         </div>
       </div>
