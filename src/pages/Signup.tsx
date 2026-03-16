@@ -19,24 +19,32 @@ const Signup = () => {
 
   const sendOTP = async (email: string, phone: string) => {
     try {
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-otp`;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (!supabaseUrl || !anonKey) {
+        throw new Error("Missing Supabase configuration");
+      }
+
+      const apiUrl = `${supabaseUrl}/functions/v1/send-otp`;
 
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          "Authorization": `Bearer ${anonKey}`,
         },
         body: JSON.stringify({
           email,
           phone: sendSMS ? phone : undefined,
-          sendType: sendSMS ? "both" : "email",
+          sendType: sendSMS ? "sms" : "email",
         }),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to send OTP");
+        const errorText = await response.text();
+        console.error("OTP API Error:", errorText);
+        throw new Error("Failed to send verification code");
       }
 
       const data = await response.json();
@@ -45,7 +53,7 @@ const Signup = () => {
         user_email: email,
         phone_number: sendSMS ? phone : null,
         code: data.otp,
-        type: sendSMS ? "both" : "email",
+        type: sendSMS ? "sms" : "email",
         is_verified: false,
       });
 
@@ -160,7 +168,7 @@ const Signup = () => {
                 className="h-4 w-4"
               />
               <Label htmlFor="sendSMS" className="text-sm font-medium cursor-pointer flex-1 mb-0">
-                Also send verification code to phone
+                Verify with mobile number
               </Label>
             </div>
             <Button type="submit" className="w-full h-12 font-bold text-base mt-2" disabled={loading}>
