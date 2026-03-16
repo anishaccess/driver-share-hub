@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { Truck, Users, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -13,38 +14,84 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: "", password: "", full_name: "", phone: "", city: "" });
+  const [sendSMS, setSendSMS] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const sendOTP = async (email: string, phone: string) => {
+    try {
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-otp`;
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          email,
+          phone: sendSMS ? phone : undefined,
+          sendType: sendSMS ? "both" : "email",
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to send OTP");
+      }
+
+      const data = await response.json();
+
+      await supabase.from("otp_codes").insert({
+        user_email: email,
+        phone_number: sendSMS ? phone : null,
+        code: data.otp,
+        type: sendSMS ? "both" : "email",
+        is_verified: false,
+      });
+
+      return true;
+    } catch (error) {
+      console.error("OTP sending error:", error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: {
-          role,
-          full_name: form.full_name,
-          phone: form.phone,
-          city: form.city,
-          avatar_emoji: role === "owner" ? "🚛" : "🧑‍✈️",
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: {
+            role,
+            full_name: form.full_name,
+            phone: form.phone,
+            city: form.city,
+            avatar_emoji: role === "owner" ? "🚛" : "🧑‍✈️",
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
-      toast.error(error.message);
+      if (error) {
+        toast.error(error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        await sendOTP(form.email, form.phone);
+        toast.success(`Verification code sent to your ${sendSMS ? "email and phone" : "email"}!`);
+        navigate(`/verify-otp?email=${encodeURIComponent(form.email)}&phone=${encodeURIComponent(form.phone)}`);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to send verification code");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    if (data.user) {
-      toast.success("Please check your email for the verification code.");
-      navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`);
-    }
-    setLoading(false);
   };
 
   const Icon = role === "owner" ? Truck : Users;
@@ -104,6 +151,17 @@ const Signup = () => {
             <div className="space-y-2">
               <Label htmlFor="password" className="font-semibold">Password</Label>
               <Input id="password" type="password" required minLength={6} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 6 characters" className="h-11" />
+            </div>
+            <div className="flex items-center gap-3 rounded-lg border border-border/50 p-3 bg-accent/5">
+              <Checkbox
+                id="sendSMS"
+                checked={sendSMS}
+                onCheckedChange={(checked) => setSendSMS(checked as boolean)}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="sendSMS" className="text-sm font-medium cursor-pointer flex-1 mb-0">
+                Also send verification code to phone
+              </Label>
             </div>
             <Button type="submit" className="w-full h-12 font-bold text-base mt-2" disabled={loading}>
               {loading ? "Creating account..." : "Create Account"}
