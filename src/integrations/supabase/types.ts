@@ -43,6 +43,39 @@ export type Database = {
           },
         ]
       }
+      otp_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          is_verified: boolean
+          phone_number: string | null
+          type: string
+          user_email: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_verified?: boolean
+          phone_number?: string | null
+          type?: string
+          user_email: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_verified?: boolean
+          phone_number?: string | null
+          type?: string
+          user_email?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_emoji: string | null
