@@ -16,6 +16,83 @@ function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+async function sendEmailOtp(email: string, otp: string) {
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+
+  if (!resendApiKey) {
+    console.warn("RESEND_API_KEY is not configured. Skipping email delivery.");
+    return { status: "skipped" };
+  }
+
+  const emailResponse = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${resendApiKey}`,
+    },
+    body: JSON.stringify({
+      from: "noreply@trukconnect.com",
+      to: email,
+      subject: "Your TrukConnect Verification Code",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; color: white; text-align: center;">
+            <h2 style="margin: 0;">TrukConnect Verification</h2>
+          </div>
+          <div style="padding: 40px 20px; text-align: center;">
+            <p style="color: #666; font-size: 16px; margin-bottom: 30px;">Your verification code is:</p>
+            <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+              <p style="font-size: 32px; font-weight: bold; letter-spacing: 2px; color: #333; margin: 0;">${otp}</p>
+            </div>
+            <p style="color: #999; font-size: 12px;">This code will expire in 15 minutes.</p>
+          </div>
+        </div>
+      `,
+    }),
+  });
+
+  if (!emailResponse.ok) {
+    console.error("Email sending failed:", await emailResponse.text());
+    return { status: "failed" };
+  }
+
+  return { status: "sent" };
+}
+
+async function sendSmsOtp(phone: string, otp: string) {
+  const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+  const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+  const twilioFromNumber = Deno.env.get("TWILIO_FROM_NUMBER");
+
+  if (!twilioAccountSid || !twilioAuthToken || !twilioFromNumber) {
+    console.warn("Twilio secrets are not configured. Skipping SMS delivery.");
+    return { status: "skipped" };
+  }
+
+  const smsResponse = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: "Basic " + btoa(`${twilioAccountSid}:${twilioAuthToken}`),
+      },
+      body: new URLSearchParams({
+        From: twilioFromNumber,
+        To: phone,
+        Body: `Your TrukConnect verification code is: ${otp}. This code will expire in 15 minutes.`,
+      }).toString(),
+    }
+  );
+
+  if (!smsResponse.ok) {
+    console.error("SMS sending failed:", await smsResponse.text());
+    return { status: "failed" };
+  }
+
+  return { status: "sent" };
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -28,85 +105,34 @@ Deno.serve(async (req: Request) => {
     const { email, phone, sendType } = (await req.json()) as OTPRequest;
 
     if (!email) {
-      return new Response(
-        JSON.stringify({ error: "Email is required" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: "Email is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const otp = generateOTP();
+    const delivery = {
+      email: "not_requested",
+      sms: "not_requested",
+    };
 
     if (sendType === "email" || sendType === "both") {
-      const emailResponse = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
-        },
-        body: JSON.stringify({
-          from: "noreply@trukconnect.com",
-          to: email,
-          subject: "Your TrukConnect Verification Code",
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; color: white; text-align: center;">
-                <h2 style="margin: 0;">TrukConnect Verification</h2>
-              </div>
-              <div style="padding: 40px 20px; text-align: center;">
-                <p style="color: #666; font-size: 16px; margin-bottom: 30px;">Your verification code is:</p>
-                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                  <p style="font-size: 32px; font-weight: bold; letter-spacing: 2px; color: #333; margin: 0;">${otp}</p>
-                </div>
-                <p style="color: #999; font-size: 12px;">This code will expire in 15 minutes.</p>
-              </div>
-            </div>
-          `,
-        }),
-      });
-
-      if (!emailResponse.ok) {
-        console.error("Email sending failed:", await emailResponse.text());
-      }
+      const result = await sendEmailOtp(email, otp);
+      delivery.email = result.status;
     }
 
     if ((sendType === "sms" || sendType === "both") && phone) {
-      const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-      const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-      const twilioFromNumber = Deno.env.get("TWILIO_FROM_NUMBER");
-
-      if (twilioAccountSid && twilioAuthToken && twilioFromNumber) {
-        const smsResponse = await fetch(
-          `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              Authorization:
-                "Basic " +
-                btoa(`${twilioAccountSid}:${twilioAuthToken}`),
-            },
-            body: new URLSearchParams({
-              From: twilioFromNumber,
-              To: phone,
-              Body: `Your TrukConnect verification code is: ${otp}. This code will expire in 15 minutes.`,
-            }).toString(),
-          }
-        );
-
-        if (!smsResponse.ok) {
-          console.error("SMS sending failed:", await smsResponse.text());
-        }
-      }
+      const result = await sendSmsOtp(phone, otp);
+      delivery.sms = result.status;
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: "OTP sent successfully",
+        message: "OTP generated successfully",
         otp,
+        delivery,
       }),
       {
         status: 200,
