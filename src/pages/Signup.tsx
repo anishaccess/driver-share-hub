@@ -20,7 +20,7 @@ const Signup = () => {
   const sendOTP = async (email: string, phone: string) => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
       if (!supabaseUrl || !anonKey) {
         throw new Error("Missing Supabase configuration");
