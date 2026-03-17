@@ -20,44 +20,11 @@ const Signup = () => {
 
   const sendOTP = async (email: string, phone: string) => {
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-      if (!supabaseUrl || !anonKey) {
-        throw new Error("Missing Supabase configuration");
-      }
-
-      const apiUrl = `${supabaseUrl}/functions/v1/send-otp`;
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${anonKey}`,
-        },
-        body: JSON.stringify({
-          email,
-          phone: sendSMS ? phone : undefined,
-          sendType: sendSMS ? "sms" : "email",
-        }),
+      await requestOtp({
+        email,
+        phone,
+        sendType: sendSMS ? "sms" : "email",
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("OTP API Error:", errorText);
-        throw new Error("Failed to send verification code");
-      }
-
-      const data = await response.json();
-
-      await supabase.from("otp_codes").insert({
-        user_email: email,
-        phone_number: sendSMS ? phone : null,
-        code: data.otp,
-        type: sendSMS ? "sms" : "email",
-        is_verified: false,
-      });
-
       return true;
     } catch (error) {
       console.error("OTP sending error:", error);

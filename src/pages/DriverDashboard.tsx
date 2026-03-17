@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck, Unlock, Lock, Users, LogOut, MapPin, Star, Phone, ArrowRight, Briefcase, Award } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import { useQuery } from "@tanstack/react-query";
 
 const DriverDashboard = () => {
