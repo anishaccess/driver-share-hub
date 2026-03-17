@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2.99.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,12 +17,17 @@ function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL") || "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
+);
+
 async function sendEmailOtp(email: string, otp: string) {
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
 
   if (!resendApiKey) {
-    console.warn("RESEND_API_KEY is not configured. Skipping email delivery.");
-    return { status: "skipped" };
+    console.log("Demo mode: Email OTP generated - " + otp);
+    return { status: "demo", message: "OTP stored in database for testing" };
   }
 
   const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -65,8 +71,8 @@ async function sendSmsOtp(phone: string, otp: string) {
   const twilioFromNumber = Deno.env.get("TWILIO_FROM_NUMBER");
 
   if (!twilioAccountSid || !twilioAuthToken || !twilioFromNumber) {
-    console.warn("Twilio secrets are not configured. Skipping SMS delivery.");
-    return { status: "skipped" };
+    console.log("Demo mode: SMS OTP generated - " + otp);
+    return { status: "demo", message: "OTP stored in database for testing" };
   }
 
   const smsResponse = await fetch(
@@ -127,12 +133,15 @@ Deno.serve(async (req: Request) => {
       delivery.sms = result.status;
     }
 
+    const isDemo = delivery.email === "demo" || delivery.sms === "demo";
+
     return new Response(
       JSON.stringify({
         success: true,
-        message: "OTP generated successfully",
+        message: isDemo ? "Demo mode: OTP stored in database for testing" : "OTP generated successfully",
         otp,
         delivery,
+        demo: isDemo,
       }),
       {
         status: 200,

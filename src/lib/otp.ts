@@ -21,7 +21,8 @@ export const requestOtp = async ({ email, phone, sendType }: RequestOtpParams) =
     throw new Error(error.message || "Failed to send verification code");
   }
 
-  const otp = (data as { otp?: string } | null)?.otp;
+  const otp = (data as { otp?: string; demo?: boolean } | null)?.otp;
+  const isDemo = (data as { demo?: boolean } | null)?.demo;
 
   if (!otp) {
     throw new Error("Failed to send verification code");
@@ -37,6 +38,11 @@ export const requestOtp = async ({ email, phone, sendType }: RequestOtpParams) =
 
   if (insertError) {
     throw new Error(insertError.message);
+  }
+
+  if (isDemo) {
+    localStorage.setItem("demo_otp", otp);
+    console.log("Demo mode - OTP:", otp);
   }
 
   return otp;

@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/backend";
 import { requestOtp } from "@/lib/otp";
-import { ArrowLeft, Mail, Phone } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
@@ -18,6 +18,23 @@ const VerifyOTP = () => {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [verifyType, setVerifyType] = useState<"email" | "sms">("email");
+  const [demoOtp, setDemoOtp] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const storedOtp = localStorage.getItem("demo_otp");
+    if (storedOtp) {
+      setDemoOtp(storedOtp);
+    }
+  }, []);
+
+  const copyToClipboard = () => {
+    if (demoOtp) {
+      navigator.clipboard.writeText(demoOtp);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   const handleVerify = async () => {
     if (otp.length !== 6) {
@@ -141,6 +158,22 @@ const VerifyOTP = () => {
                 </p>
               </div>
 
+              {demoOtp && (
+                <div className="mb-6 p-4 rounded-lg border border-yellow-200 bg-yellow-50">
+                  <p className="text-xs text-yellow-800 font-semibold mb-2">Demo Mode - Your OTP:</p>
+                  <div className="flex items-center justify-between bg-white p-3 rounded border border-yellow-100">
+                    <code className="text-lg font-mono font-bold text-yellow-900">{demoOtp}</code>
+                    <button
+                      onClick={copyToClipboard}
+                      className="p-2 hover:bg-yellow-100 rounded transition-colors"
+                      title="Copy OTP"
+                    >
+                      {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4 text-yellow-800" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col items-center gap-6">
                 <InputOTP maxLength={6} value={otp} onChange={setOtp}>
                   <InputOTPGroup>
@@ -181,6 +214,22 @@ const VerifyOTP = () => {
                     We sent a 6-digit code to <span className="font-semibold text-foreground">{phone}</span>
                   </p>
                 </div>
+
+                {demoOtp && (
+                  <div className="mb-6 p-4 rounded-lg border border-yellow-200 bg-yellow-50">
+                    <p className="text-xs text-yellow-800 font-semibold mb-2">Demo Mode - Your OTP:</p>
+                    <div className="flex items-center justify-between bg-white p-3 rounded border border-yellow-100">
+                      <code className="text-lg font-mono font-bold text-yellow-900">{demoOtp}</code>
+                      <button
+                        onClick={copyToClipboard}
+                        className="p-2 hover:bg-yellow-100 rounded transition-colors"
+                        title="Copy OTP"
+                      >
+                        {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4 text-yellow-800" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex flex-col items-center gap-6">
                   <InputOTP maxLength={6} value={otp} onChange={setOtp}>
