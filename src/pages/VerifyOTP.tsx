@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
+import { requestOtp } from "@/lib/otp";
 import { ArrowLeft, Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
@@ -93,42 +94,10 @@ const VerifyOTP = () => {
   const handleResend = async () => {
     setResending(true);
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-      if (!supabaseUrl || !anonKey) {
-        throw new Error("Missing Supabase configuration");
-      }
-
-      const apiUrl = `${supabaseUrl}/functions/v1/send-otp`;
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${anonKey}`,
-        },
-        body: JSON.stringify({
-          email,
-          phone: verifyType === "sms" ? phone : undefined,
-          sendType: verifyType === "sms" ? "sms" : "email",
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Resend API Error:", errorText);
-        throw new Error("Failed to resend verification code");
-      }
-
-      const data = await response.json();
-
-      await supabase.from("otp_codes").insert({
-        user_email: email,
-        phone_number: verifyType === "sms" ? phone : null,
-        code: data.otp,
-        type: verifyType,
-        is_verified: false,
+      await requestOtp({
+        email,
+        phone,
+        sendType: verifyType,
       });
 
       toast.success(`Verification code resent to your ${verifyType === "sms" ? "phone" : "email"}!`);
